@@ -7,10 +7,10 @@ from __future__ import print_function
 import tensorflow as tf
 
 
-class ConvolutionBlock(tf.keras.layers.Layer):
+class ResnetIdentityBlock(tf.keras.Model):
     """Calculate convolution over sentence"""
     def __init__(self, hidden_size, kernel_size, stride=1, is_first_layer=False):
-        """Specify characteristic parameters of embedding layer
+        """Specify characteristic parameters of convolution block and build the block
 
         Args:
             hidden_size: Integer, the dimensionality of the output space
@@ -20,7 +20,7 @@ class ConvolutionBlock(tf.keras.layers.Layer):
             If hidden size is not dividable by 4
         """
 
-        super(ConvolutionBlock, self).__init__()
+        super(ResnetIdentityBlock, self).__init__()
 
         if hidden_size % 4 != 0:
             raise Exception("Hidden size should be dividable by 4")
@@ -30,23 +30,7 @@ class ConvolutionBlock(tf.keras.layers.Layer):
         self.stride = stride
         self.is_first_layer = is_first_layer
 
-        self.res_branch1 = None
-
-        self.bn_branch1 = None
-
-        self.res_branch2a = None
-        self.res_branch2b = None
-        self.res_branch2c = None
-
-        self.bn_branch_2a = None
-        self.bn_branch_2b = None
-        self.bn_branch_2c = None
-
-        self.relu = None
-
-    def build(self, input_shape):
-        """Build convolution layer"""
-        self.res_branch2a = tf.keras.layers.Conv1D(int(self.hidden_size / 4), 1,  strides=self.stride, padding='same')
+        self.res_branch2a = tf.keras.layers.Conv1D(int(self.hidden_size / 4), 1, strides=self.stride, padding='same')
         self.res_branch2b = tf.keras.layers.Conv1D(int(self.hidden_size / 4), self.kernel_size, padding='same')
         self.res_branch2c = tf.keras.layers.Conv1D(self.hidden_size, 1, padding="same")
 
