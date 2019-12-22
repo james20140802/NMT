@@ -51,7 +51,7 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
 
         output = self.convolution_1(inputs)
         if training:
-            output = tf.nn.dropout(output)
+            output = tf.nn.dropout(output, rate=self.relu_dropout)
         output = self.convolution_2(output)
 
         return output
