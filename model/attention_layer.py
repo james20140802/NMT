@@ -61,7 +61,7 @@ class Attention(tf.keras.layers.Layer):
             inputs, shape=(batch_size, -1, self.num_heads, self.depth))
         return tf.transpose(x, perm=[0, 2, 1, 3])
 
-    def call(self, inputs, training=True, mask=None):
+    def call(self, inputs, training=False, mask=None):
         """Apply attention mechanism to query_input and source_input.
 
         Args:
