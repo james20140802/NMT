@@ -19,6 +19,7 @@ class Attention(tf.keras.layers.Layer):
          kernel_size: int, the length of the 1D convolution window.
          attention_dropout: float, dropout rate inside attention for training.
        """
+
         if hidden_size % num_heads:
             raise ValueError(
                 "Hidden size ({}) must be divisible by the number of heads ({}).".format(hidden_size, num_heads))
@@ -35,6 +36,8 @@ class Attention(tf.keras.layers.Layer):
         self.key_convolution = None
         self.value_convolution = None
 
+        self.dropout = None
+
         self.output_dense = None
 
     def build(self, input_shape):
@@ -43,6 +46,8 @@ class Attention(tf.keras.layers.Layer):
         self.query_convolution = tf.keras.layers.Conv1D(self.hidden_size, self.kernel_size, padding="same")
         self.key_convolution = tf.keras.layers.Conv1D(self.hidden_size, self.kernel_size, padding="same")
         self.value_convolution = tf.keras.layers.Conv1D(self.hidden_size, self.kernel_size, padding="same")
+
+        self.dropout = tf.keras.layers.Dropout(self.attention_dropout)
 
         self.output_dense = tf.keras.layers.Dense(self.hidden_size)
 
@@ -65,14 +70,14 @@ class Attention(tf.keras.layers.Layer):
         """Apply attention mechanism to query_input and source_input.
 
         Args:
-          inputs: A tuple Contain two tensor
-              query_input: A tensor with shape [batch_size, length_query, hidden_size].
-              source_input: A tensor with shape [batch_size, length_source, hidden_size].
-          training: A bool, whether in training mode or not.
-          mask: Float tensor with shape that can be broadcast  to (..., seq_len_q, seq_len_k). Defaults to None.
+          inputs: tuple, contains two tensor
+                  query_input: A tensor with shape [batch_size, length_query, hidden_size].
+                  source_input: A tensor with shape [batch_size, length_source, hidden_size].
+          training: bool, whether in training mode or not.
+          mask: float, tensor with shape that can be broadcast  to (..., seq_len_q, seq_len_k). Defaults to None.
 
         Returns:
-          Attention layer output with shape [batch_size, length_query, hidden_size]
+          Attention layer output with shape [batch_size, length_query, hidden_size].
         """
         query_input, source_input = inputs
         batch_size = tf.shape(query_input)[0]
@@ -98,12 +103,12 @@ class Attention(tf.keras.layers.Layer):
 
         weights = tf.nn.softmax(logits, name="attention_weights")
 
-        if training:
-            weights = tf.nn.dropout(weights, rate=self.attention_dropout)
+        weights = self.dropout(weights, training=training)
 
         attention_output = tf.matmul(weights, value)
         attention_output = tf.transpose(attention_output, [0, 2, 1, 3])
         attention_output = tf.reshape(attention_output, (batch_size, -1, self.hidden_size))
 
         attention_output = self.output_dense(attention_output)
+
         return attention_output

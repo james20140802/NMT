@@ -17,8 +17,8 @@ class DecoderLayer(tf.keras.layers.Layer):
         """Initialize decoder layer.
 
        Args:
-           params: hyper parameter object defining layer sizes, dropout values, etc.
-        """
+          params: hyper parameter object defining layer sizes, dropout values, etc.
+       """
 
         super(DecoderLayer, self).__init__()
         self.hidden_size = params["hidden_size"]
@@ -51,16 +51,16 @@ class DecoderLayer(tf.keras.layers.Layer):
         """Return the output of the decoder layer.
 
         Args:
-            inputs: tensor with shape [batch_size, input_length, hidden_size]
-            training: boolean, whether in training mode or not.
-            look_ahead_mask: Float tensor for preventing decoder to look ahead of sequence during training
-                            Default value is None
-            padding_mask: Float tensor with shape that can be broadcast  to (..., seq_len_q, seq_len_k).
-                          Defaults to None.
+          inputs: tensor with shape [batch_size, input_length, hidden_size]
+          training: bool, whether in training mode or not.
+          look_ahead_mask: float, tensor for preventing decoder to look ahead of sequence during training
+                           Default to None
+          padding_mask: float, tensor with shape that can be broadcast  to (..., seq_len_q, seq_len_k).
+                        Defaults to None.
 
         Returns:
-            Output of decoder layer.
-            float32 tensor with shape [batch_size, input_length, hidden_size]
+          Output of decoder layer.
+          float32 tensor with shape [batch_size, input_length, hidden_size]
         """
         x, enc_output = inputs
 
@@ -83,7 +83,7 @@ class Decoder(tf.keras.Model):
         """Initialize decoder.
 
         Args:
-            params: hyper parameter object defining layer sizes, dropout values, etc.
+          params: hyper parameter object defining layer sizes, dropout values, etc.
         """
 
         super(Decoder, self).__init__()
@@ -105,16 +105,16 @@ class Decoder(tf.keras.Model):
         """Return the output of the decoder.
 
         Args:
-            inputs: input tensor with shape [batch_size, input_length] and encoder output.
-            training: bool, whether in training mode or not.
-            look_ahead_mask: Float tensor for preventing decoder to look ahead of sequence during training.
+          inputs: input tensor with shape [batch_size, input_length] and encoder output.
+          training: bool, whether in training mode or not.
+          look_ahead_mask: Float tensor for preventing decoder to look ahead of sequence during training.
                             Default value is None.
-            padding_mask: Float tensor with shape that can be broadcast  to (..., seq_len_q, seq_len_k).
-                          Defaults to None.
+          padding_mask: Float tensor with shape that can be broadcast  to (..., seq_len_q, seq_len_k).
+                        Defaults to None.
 
         Return:
-            Output of the decoder
-            float32 tensor with shape [batch_size, length, hidden_size].
+          Output of the decoder
+          float32 tensor with shape [batch_size, length, hidden_size].
         """
 
         x, enc_output = inputs
