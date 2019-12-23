@@ -90,9 +90,9 @@ class Encoder(tf.keras.Model):
         """Return the output of the encoder.
 
         Args:
-          inputs: input tensor with shape [batch_size, input_length].
+          inputs: input, tensor with shape [batch_size, input_length].
           training: bool, whether in training mode or not.
-          mask: Float tensor with shape that can be broadcast  to (..., seq_len_q, seq_len_k). Defaults to None.
+          mask: float, tensor with shape that can be broadcast  to (..., seq_len_q, seq_len_k). Defaults to None.
 
         Return:
           Output of the encoder.

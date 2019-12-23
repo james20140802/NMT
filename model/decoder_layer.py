@@ -107,9 +107,9 @@ class Decoder(tf.keras.Model):
         Args:
           inputs: input tensor with shape [batch_size, input_length] and encoder output.
           training: bool, whether in training mode or not.
-          look_ahead_mask: Float tensor for preventing decoder to look ahead of sequence during training.
+          look_ahead_mask: float, tensor for preventing decoder to look ahead of sequence during training.
                             Default value is None.
-          padding_mask: Float tensor with shape that can be broadcast  to (..., seq_len_q, seq_len_k).
+          padding_mask: float, tensor with shape that can be broadcast  to (..., seq_len_q, seq_len_k).
                         Defaults to None.
 
         Return:

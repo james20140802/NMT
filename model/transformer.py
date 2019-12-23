@@ -29,6 +29,20 @@ class Transformer(tf.keras.Model):
         self.dense = EmbeddingSharedWeights(params["target_vocab_size"], params["hidden_size"])
 
     def call(self, inputs, training=False, enc_padding_mask=None, look_ahead_mask=None, dec_padding_mask=None):
+        """Return the output of the transformer.
+
+        Args:
+          inputs: input tensor with source input and target input.
+          training: bool, whether in training mode or not.
+          enc_padding_mask: float, tensor for encoder padding mask.
+          look_ahead_mask: float, tensor for preventing decoder to look ahead of sequence during training.
+                            Default value is None.
+          dec_padding_mask: float, tensor for decoder padding mask.
+
+        Return:
+          Output of the transformer
+          float32 tensor with shape [batch_size, length, vocab_size].
+        """
         enc_input, dec_input = inputs
         enc_output = self.encoder(inputs, training, enc_padding_mask)
 
