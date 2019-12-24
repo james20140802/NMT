@@ -21,6 +21,7 @@ class DecoderLayer(tf.keras.layers.Layer):
        """
 
         super(DecoderLayer, self).__init__()
+        self.params = params
         self.hidden_size = params["hidden_size"]
         self.num_heads = params["num_heads"]
         self.kernel_size = params["kernel_size"]
@@ -46,6 +47,11 @@ class DecoderLayer(tf.keras.layers.Layer):
         self.layer_norm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.layer_norm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.layer_norm3 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+
+    def get_config(self):
+        return {
+            "params": self.params
+        }
 
     def call(self, inputs, training=False, look_ahead_mask=None, padding_mask=None):
         """Return the output of the decoder layer.
@@ -87,6 +93,7 @@ class Decoder(tf.keras.Model):
         """
 
         super(Decoder, self).__init__()
+        self.params = params
         self.num_layers = params["num_layers"]
         self.hidden_size = params["hidden_size"]
         self.num_heads = params["num_heads"]
@@ -100,6 +107,11 @@ class Decoder(tf.keras.Model):
         self.pos_encoding = EmbeddingSharedWeights.positional_encoding(self.maximum_position_encoding, self.hidden_size)
         self.decoder_layers = [DecoderLayer(params) for _ in range(self.num_layers)]
         self.dropout = tf.keras.layers.Dropout(self.dropout_rate)
+
+    def get_config(self):
+        return {
+            "params": self.params
+        }
 
     def call(self, inputs, training=False, look_ahead_mask=None, padding_mask=None):
         """Return the output of the decoder.
