@@ -32,11 +32,11 @@ class EmbeddingSharedWeights(tf.keras.layers.Layer):
         self.shared_weights_0 = self.add_weight("weights_0",
                                                 shape=[self.vocab_size, self.hidden_size * 2],
                                                 initializer=tf.random_normal_initializer(
-                                                  mean=0, stddev=(self.hidden_size * 2) ** 0.5))
+                                                  mean=0., stddev=(self.hidden_size * 2) ** -0.5))
         self.shared_weights_1 = self.add_weight("weights_1",
                                                 shape=[self.hidden_size * 2, self.hidden_size],
                                                 initializer=tf.random_normal_initializer(
-                                                  mean=0, stddev=self.hidden_size ** 0.5))
+                                                  mean=0, stddev=self.hidden_size ** -0.5))
 
     def get_config(self):
         return {
@@ -73,13 +73,16 @@ class EmbeddingSharedWeights(tf.keras.layers.Layer):
         Returns:
           float32 tensor with shape [batch_size, length, hidden_size].
         """
-        if len(tf.shape(inputs)) == 2:
-            x = tf.keras.utils.to_categorical(inputs, num_classes=self.vocab_size)
-        else:
-            x = inputs
+
+        batch_size = tf.shape(inputs)[0]
+
+        x = tf.cast(tf.keras.utils.to_categorical(inputs, num_classes=self.vocab_size), dtype=tf.float32)
+
+        x = tf.reshape(x, [-1, self.vocab_size])
 
         x = tf.matmul(x, self.shared_weights_0)
         embeddings = tf.matmul(x, self.shared_weights_1)
+        embeddings = tf.reshape(embeddings, [batch_size, -1, self.hidden_size])
 
         # Create binary mask of size [batch_size, length]
         mask = tf.cast(tf.not_equal(inputs, 0), embeddings.dtype)
