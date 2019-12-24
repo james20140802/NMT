@@ -44,7 +44,7 @@ class Transformer(tf.keras.Model):
           float32 tensor with shape [batch_size, length, vocab_size].
         """
         enc_input, dec_input = inputs
-        enc_output = self.encoder(inputs, training, enc_padding_mask)
+        enc_output = self.encoder(enc_input, training, enc_padding_mask)
 
         dec_output = self.decoder((dec_input, enc_output), training, look_ahead_mask, dec_padding_mask)
 

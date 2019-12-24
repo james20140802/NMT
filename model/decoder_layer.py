@@ -128,7 +128,7 @@ class Decoder(tf.keras.Model):
         x = self.dropout(emb, training=training)
 
         for i in range(self.num_layers):
-            x = self.encoder_layers[i]((x, enc_output), training, look_ahead_mask, padding_mask)
+            x = self.decoder_layers[i]((x, enc_output), training, look_ahead_mask, padding_mask)
 
         return x
 

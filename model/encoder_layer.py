@@ -96,7 +96,7 @@ class Encoder(tf.keras.Model):
 
         Return:
           Output of the encoder.
-          float32 tensor with shape [batch_size, length, hidden_sie]
+          float32 tensor with shape [batch_size, length, hidden_size]
 
         Raises:
           NotImplementedError: If try to use padded decode method on CPU/GPUs.
