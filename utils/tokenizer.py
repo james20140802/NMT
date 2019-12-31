@@ -10,9 +10,9 @@ import tensorflow_datasets as tfds
 import tensorflow as tf
 
 PAD = "<pad>"
-PAD_ID = 0
+PAD_ID = 1
 EOS = "<EOS>"
-EOS_ID = 1
+EOS_ID = 2
 RESERVED_TOKENS = [PAD, EOS]
 
 
