@@ -248,7 +248,7 @@ def encode_and_save_files(subtokenizer, data_dir, raw_files, tag):
     input_file = raw_files[0]
     target_file = raw_files[1]
 
-    tmp_file_path = [file_path + '.incomplete']
+    tmp_file_path = file_path + '.incomplete'
     writer = tf.io.TFRecordWriter(tmp_file_path)
     counter = 0
     for counter, (input_line, target_line) in enumerate(zip(txt_line_iterator(input_file),
