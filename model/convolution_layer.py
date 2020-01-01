@@ -62,3 +62,48 @@ class ResidualBlock(tf.keras.layers.Layer):
         x = self.relu(x)
 
         return x
+
+
+class ResNetwork(tf.keras.Model):
+    """Residual connected convolution model."""
+    def __init__(self, units, n_filters, kernel_size):
+        """Initialize the model.
+
+        Args:
+          units: number of convolution layer.
+          n_filters: Integer, the dimensionality of the output space.
+          kernel_size: An integer or tuple/list of a single integer, specifying the length of the 1D convolution window.
+        """
+
+        super(ResNetwork, self).__init__()
+
+        self.units = units
+        self.n_filters = n_filters
+        self.kernel_size = kernel_size
+
+        self.convolution_blocks = [ResidualBlock(n_filters, kernel_size) for _ in range(units)]
+
+    def get_config(self):
+        return {
+            "units": self.units,
+            "n_filters": self.n_filters,
+            "kernel_size": self.kernel_size
+        }
+
+    def call(self, inputs, training=False, mask=None):
+        """Return the output of the residual connected convolution model.
+
+        Args:
+          inputs: input, tensor with shape [batch_size, input_length, hidden_size].
+          training: bool, whether in training mode or not.
+          mask: float, tensor with shape that can be broadcast  to (..., seq_len_q, seq_len_k). Defaults to None.
+
+        Returns:
+          Output of the model.
+          float32 tensor with shape [batch_size, length, hidden_size]
+        """
+
+        for i in range(self.units):
+            inputs = self.convolution_blocks[i](inputs)
+
+        return inputs
