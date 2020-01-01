@@ -68,7 +68,7 @@ class ResidualConvolutionBlock(tf.keras.layers.Layer):
         return x
 
 
-class ResiaudlConvolutionNetwork(tf.keras.Model):
+class ResidualConvolutionNetwork(tf.keras.Model):
     """Residual connected convolution model."""
     def __init__(self, units, n_filters, kernel_size):
         """Initialize the model.
@@ -79,7 +79,7 @@ class ResiaudlConvolutionNetwork(tf.keras.Model):
           kernel_size: An integer or tuple/list of a single integer, specifying the length of the 1D convolution window.
         """
 
-        super(ResiaudlConvolutionNetwork, self).__init__()
+        super(ResidualConvolutionNetwork, self).__init__()
 
         self.units = units
         self.n_filters = n_filters
