@@ -53,6 +53,10 @@ class ResidualBlock(tf.keras.layers.Layer):
 
         Args:
           inputs: tensor with shape [batch_size, input_length, hidden_size].
+
+        Returns:
+          Output of the block.
+          float32 tensor with shape [batch_size, length, hidden_size]
         """
         x = self.relu(self.conv1(inputs))
         x = self.relu(self.conv2(x))
