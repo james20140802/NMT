@@ -7,7 +7,7 @@ from __future__ import print_function
 import tensorflow as tf
 
 
-class ResidualBlock(tf.keras.layers.Layer):
+class ResidualConvolutionBlock(tf.keras.layers.Layer):
     """Residual connected convolution block."""
     def __init__(self, n_filters, kernel_size):
         """Initialize the block.
@@ -23,7 +23,7 @@ class ResidualBlock(tf.keras.layers.Layer):
         if (n_filters % 4) != 0:
             raise ValueError("Filter number should be divided by 4.")
 
-        super(ResidualBlock, self).__init__()
+        super(ResidualConvolutionBlock, self).__init__()
 
         self.n_filters = n_filters
         self.kernel_size = kernel_size
@@ -68,7 +68,7 @@ class ResidualBlock(tf.keras.layers.Layer):
         return x
 
 
-class ResNetwork(tf.keras.Model):
+class ResiaudlConvolutionNetwork(tf.keras.Model):
     """Residual connected convolution model."""
     def __init__(self, units, n_filters, kernel_size):
         """Initialize the model.
@@ -79,13 +79,13 @@ class ResNetwork(tf.keras.Model):
           kernel_size: An integer or tuple/list of a single integer, specifying the length of the 1D convolution window.
         """
 
-        super(ResNetwork, self).__init__()
+        super(ResiaudlConvolutionNetwork, self).__init__()
 
         self.units = units
         self.n_filters = n_filters
         self.kernel_size = kernel_size
 
-        self.convolution_blocks = [ResidualBlock(n_filters, kernel_size) for _ in range(units)]
+        self.convolution_blocks = [ResidualConvolutionBlock(n_filters, kernel_size) for _ in range(units)]
 
     def get_config(self):
         return {
