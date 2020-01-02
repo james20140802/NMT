@@ -58,4 +58,8 @@ class Voc2Voc(tf.keras.Model):
 
         output = self.language_model(attention_output)
 
+        output = self.target_embedding(output, "linear")
+
+        output = tf.nn.softmax(output)
+
         return output
