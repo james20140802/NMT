@@ -6,11 +6,9 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from utils.tokenizer import PAD_ID
-
 
 def create_padding_mask(seq):
-    seq = tf.cast(tf.logical_or(tf.math.equal(seq, 0), tf.math.equal(seq, PAD_ID)), tf.float32)
+    seq = tf.cast(tf.math.equal(seq, 0), tf.float32)
 
     # add extra dimensions to add the padding
     # to the attention logits.
