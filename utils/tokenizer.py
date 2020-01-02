@@ -9,11 +9,11 @@ from absl import logging
 import tensorflow_datasets as tfds
 import tensorflow as tf
 
-PAD = "<pad>"
-PAD_ID = 1
+BOS = "<BOS>"
+BOS_ID = 1
 EOS = "<EOS>"
 EOS_ID = 2
-RESERVED_TOKENS = [PAD, EOS]
+RESERVED_TOKENS = [BOS, EOS]
 
 
 class SubTokenizer(object):
