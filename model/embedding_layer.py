@@ -49,10 +49,12 @@ class EmbeddingSharedWeights(tf.keras.layers.Layer):
         Args:
           inputs: int, tensor with [batch_size, length] or [batch_size, length, 2].
           mode: string, a valid value is one of "embedding" and "linear".
+
         Returns:
           outputs: (1) If mode == "embedding", output embedding tensor, float32 with
           shape [batch_size, length, embedding_size]; (2) mode == "linear", output
           linear tensor, float32 with shape [batch_size, length, vocab_size].
+
         Raise:
           ValueError: if mode is not valid.
         """
@@ -69,6 +71,7 @@ class EmbeddingSharedWeights(tf.keras.layers.Layer):
 
         Args:
           inputs: int, tensor with shape [batch_size, length].
+
         Returns:
           float32 tensor with shape [batch_size, length, hidden_size].
         """
@@ -96,6 +99,7 @@ class EmbeddingSharedWeights(tf.keras.layers.Layer):
 
         Args:
           inputs: float32, tensor with shape [batch_size, length, hidden_size].
+
         Returns:
           float32 tensor with shape [batch_size, length, vocab_size].
         """
@@ -111,6 +115,12 @@ class EmbeddingSharedWeights(tf.keras.layers.Layer):
 
 class ELMo(tf.keras.layers.Layer):
     def __init__(self, units, hidden_size):
+        """Specify characteristic parameters of embedding layer.
+
+        Args:
+          units: int, number of LSTM units.
+          hidden_size: int, hidden size of LSTM.
+        """
         super(ELMo, self).__init__()
         self.units = units
         self.hidden_size = hidden_size
@@ -121,9 +131,10 @@ class ELMo(tf.keras.layers.Layer):
         self.dense = []
 
     def build(self, input_shape):
+        """Build the layer."""
         for _ in range(self.units):
             self.lstm_forward.append(tf.keras.layers.LSTM(self.hidden_size, return_sequences=True))
-            self.lstm_backward.append(tf.keras.layers.LSTM(self.hidden_size, return_sequences=True))
+            self.lstm_backward.append(tf.keras.layers.LSTM(self.hidden_size, return_sequences=True, go_backwards=True))
             self.dense.append(tf.keras.layers.Dense(self.hidden_size))
 
     def get_config(self):
@@ -133,6 +144,14 @@ class ELMo(tf.keras.layers.Layer):
         }
 
     def call(self, inputs, **kwargs):
+        """Applies embedding based on the context.
+
+        Args:
+          inputs: float32, tensor with shape [batch_size, length, hidden_size].
+
+        Returns:
+          float32 tensor with shape [batch_size, length, vocab_size].
+        """
         forward = []
         backward = []
 
