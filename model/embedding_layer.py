@@ -5,7 +5,6 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-import numpy as np
 
 
 class EmbeddingSharedWeights(tf.keras.layers.Layer):
@@ -109,22 +108,53 @@ class EmbeddingSharedWeights(tf.keras.layers.Layer):
 
         return tf.reshape(logits, [batch_size, length, self.vocab_size])
 
-    @staticmethod
-    def get_angles(pos, i, hidden_size):
-        angle_rates = 1 / np.power(10000, (2 * (i//2)) / np.float32(hidden_size))
-        return pos * angle_rates
 
-    @staticmethod
-    def positional_encoding(position, hidden_size):
-        angle_rads = EmbeddingSharedWeights.get_angles(np.arange(position)[:, np.newaxis],
-                                                       np.arange(hidden_size)[np.newaxis, :], hidden_size)
+class ELMo(tf.keras.layers.Layer):
+    def __init__(self, units, hidden_size):
+        super(ELMo, self).__init__()
+        self.units = units
+        self.hidden_size = hidden_size
 
-        # apply sin to even indices in the array; 2i
-        angle_rads[:, 0::2] = np.sin(angle_rads[:, 0::2])
+        self.lstm_forward = []
+        self.lstm_backward = []
 
-        # apply cos to odd indices in the array; 2i+1
-        angle_rads[:, 1::2] = np.cos(angle_rads[:, 1::2])
+        self.dense = []
 
-        pos_encoding = angle_rads[np.newaxis, ...]
+    def build(self, input_shape):
+        for _ in range(self.units):
+            self.lstm_forward.append(tf.keras.layers.LSTM(self.hidden_size, return_sequences=True))
+            self.lstm_backward.append(tf.keras.layers.LSTM(self.hidden_size, return_sequences=True))
+            self.dense.append(tf.keras.layers.Dense(self.hidden_size))
 
-        return tf.cast(pos_encoding, dtype=tf.float32)
+    def get_config(self):
+        return {
+            "units": self.units,
+            "hidden_size": self.hidden_size
+        }
+
+    def call(self, inputs, **kwargs):
+        forward = []
+        backward = []
+
+        for i in range(self.units):
+            x = self.lstm_forward[i](inputs)
+            y = self.lstm_backward[i](inputs)
+
+            forward.append(x)
+            backward.append(y)
+
+        concat = []
+
+        for i in range(self.units):
+            concat.append(tf.concat([forward[i], backward[i]], axis=-1))
+
+        output = []
+        for i in range(self.units):
+            output.append(self.dense[i](concat[i]))
+
+        ret = 0
+
+        for i in range(self.units):
+            ret += output[i]
+
+        return ret
