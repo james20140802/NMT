@@ -8,6 +8,7 @@ import tensorflow as tf
 
 from model.embedding_layer import EmbeddingSharedWeights
 from model.language_model import LanguageModel
+from model.attention_layer import Attention
 
 
 class Voc2Voc(tf.keras.Model):
@@ -26,13 +27,16 @@ class Voc2Voc(tf.keras.Model):
         self.hidden_size = params["hidden_size"]
         self.kernel_size = params["kernel_size"]
         self.units = params["units"]
+        self.dropout_rate = params["dropout_rate"]
 
         self.input_embedding = EmbeddingSharedWeights(self.vocab_size, self.hidden_size)
         self.target_embedding = EmbeddingSharedWeights(self.vocab_size, self.hidden_size)
 
-        self.language_model = LanguageModel(self.units, self.hidden_size, self.kernel_size)
+        self.attention = Attention(self.hidden_size, self.dropout_rate)
 
-    def call(self, inputs, training=None, look_ahead_mask=None, input_padding_mask=None, target_padding_mask=None):
+        self.language_model = LanguageModel(self.units, self.hidden_size, self.kernel_size, self.dropout_rate)
+
+    def call(self, inputs, training=False, look_ahead_mask=None, input_padding_mask=None, target_padding_mask=None):
         inputs, targets = inputs
 
         input_embedding = self.input_embedding(inputs)
@@ -44,17 +48,7 @@ class Voc2Voc(tf.keras.Model):
         if target_padding_mask:
             target_embedding *= (1 - target_padding_mask)
 
-        logits = tf.matmul(target_embedding, input_embedding, transpose_b=True)
-
-        dk = tf.cast(tf.shape(input_embedding)[-1], tf.float32)
-        scaled_attention_logits = logits / tf.math.sqrt(dk)
-
-        if look_ahead_mask:
-            scaled_attention_logits += (look_ahead_mask * -1e9)
-
-        weights = tf.nn.softmax(scaled_attention_logits, axis=-1)
-
-        attention_output = tf.matmul(weights, input_embedding)
+        attention_output = self.attention((target_embedding, input_embedding), training=training)
 
         output = self.language_model(attention_output)
 

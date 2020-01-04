@@ -107,7 +107,9 @@ class ResidualConvolutionNetwork(tf.keras.Model):
           float32 tensor with shape [batch_size, length, hidden_size]
         """
 
-        for i in range(self.units):
-            inputs = self.convolution_blocks[i](inputs)
+        x = inputs
 
-        return inputs
+        for i in range(self.units):
+            x = self.convolution_blocks[i](x)
+
+        return x
