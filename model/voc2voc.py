@@ -7,6 +7,7 @@ from __future__ import print_function
 import tensorflow as tf
 
 from model.embedding_layer import EmbeddingSharedWeights
+from model.embedding_layer import ELMo
 from model.language_model import LanguageModel
 from model.attention_layer import Attention
 
@@ -27,10 +28,14 @@ class Voc2Voc(tf.keras.Model):
         self.hidden_size = params["hidden_size"]
         self.kernel_size = params["kernel_size"]
         self.units = params["units"]
+        self.elmo_units = params["elmo_units"]
         self.dropout_rate = params["dropout_rate"]
 
         self.input_embedding = EmbeddingSharedWeights(self.vocab_size, self.hidden_size)
         self.target_embedding = EmbeddingSharedWeights(self.vocab_size, self.hidden_size)
+
+        self.input_elmo = ELMo(self.elmo_units, self.hidden_size)
+        self.target_elmo = ELMo(self.elmo_units, self.hidden_size)
 
         self.attention = Attention(self.hidden_size, self.dropout_rate)
 
@@ -41,6 +46,9 @@ class Voc2Voc(tf.keras.Model):
 
         input_embedding = self.input_embedding(inputs)
         target_embedding = self.target_embedding(targets)
+
+        input_embedding = self.input_elmo(input_embedding)
+        target_embedding = self.target_elmo(target_embedding)
 
         if input_padding_mask:
             input_embedding *= (1 - input_padding_mask)
