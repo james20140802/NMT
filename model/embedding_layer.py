@@ -78,9 +78,7 @@ class EmbeddingSharedWeights(tf.keras.layers.Layer):
 
         batch_size = tf.shape(inputs)[0]
 
-        x = tf.cast(tf.keras.utils.to_categorical(inputs, num_classes=self.vocab_size), dtype=tf.float32)
-
-        x = tf.reshape(x, [-1, self.vocab_size])
+        x = tf.one_hot(indices=inputs, depth=self.vocab_size, axis=-1, dtype=tf.float32)
 
         x = tf.matmul(x, self.shared_weights_0)
         embeddings = tf.matmul(x, self.shared_weights_1)

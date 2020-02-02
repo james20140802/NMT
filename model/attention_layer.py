@@ -33,22 +33,18 @@ class Attention(tf.keras.layers.Layer):
             "attention_dropout": self.attention_dropout
         }
 
-    def call(self, inputs, training=False, mask=None):
+    def call(self, query_input, source_input, training=False, mask=None):
         """Apply attention mechanism to query_input and source_input.
 
         Args:
-          inputs: tuple, contains two tensor
-                  query_input: A tensor with shape [batch_size, length_query, hidden_size].
-                  source_input: A tensor with shape [batch_size, length_source, hidden_size].
+          query_input: A tensor with shape [batch_size, length_query, hidden_size].
+          source_input: A tensor with shape [batch_size, length_source, hidden_size].
           training: bool, whether in training mode or not.
           mask: float, tensor with shape that can be broadcast to (..., seq_len_q, seq_len_k). Defaults to None.
 
         Returns:
           Attention layer output with shape [batch_size, length_query, hidden_size].
         """
-
-        query_input, source_input = inputs
-
         logits = tf.matmul(query_input, source_input, transpose_b=True)
 
         dk = tf.cast(tf.shape(query_input)[-1], tf.float32)

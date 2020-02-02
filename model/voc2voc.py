@@ -41,8 +41,13 @@ class Voc2Voc(tf.keras.Model):
 
         self.language_model = LanguageModel(self.units, self.hidden_size, self.kernel_size, self.dropout_rate)
 
-    def call(self, inputs, training=False, look_ahead_mask=None, input_padding_mask=None, target_padding_mask=None):
-        inputs, targets = inputs
+    def call(self, inputs, targets, training=False, look_ahead_mask=None,
+             input_padding_mask=None, target_padding_mask=None):
+
+        batch_size = tf.shape(inputs)[0]
+
+        inputs_length = tf.shape(inputs)[1]
+        targets_length = tf.shape(targets)[1]
 
         input_embedding = self.input_embedding(inputs)
         target_embedding = self.target_embedding(targets)
@@ -50,17 +55,17 @@ class Voc2Voc(tf.keras.Model):
         input_embedding = self.input_elmo(input_embedding)
         target_embedding = self.target_elmo(target_embedding)
 
-        if input_padding_mask:
-            input_embedding *= (1 - input_padding_mask)
+        if input_padding_mask is not None:
+            input_embedding += tf.broadcast_to(tf.reshape(input_padding_mask, [batch_size, inputs_length, 1]) * 1e-9,
+                                               [batch_size, inputs_length, self.hidden_size])
 
-        if target_padding_mask:
-            target_embedding *= (1 - target_padding_mask)
+        if target_padding_mask is not None:
+            target_embedding += tf.broadcast_to(tf.reshape(target_padding_mask, [batch_size, targets_length, 1]) * 1e-9,
+                                                [batch_size, targets_length, self.hidden_size])
 
-        attention_output = self.attention((target_embedding, input_embedding), training=training)
+        attention_output = self.attention(target_embedding, input_embedding, training=training)
 
-        output = self.language_model(attention_output)
-
-        output = self.target_embedding(output, "linear")
+        output = self.target_embedding(attention_output, "linear")
 
         output = tf.nn.softmax(output)
 

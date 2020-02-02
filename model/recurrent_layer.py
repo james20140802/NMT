@@ -7,7 +7,7 @@ from __future__ import print_function
 import tensorflow as tf
 
 
-class ResidualLSTMBlock(tf.keras.layers.Layer):
+class ResidualLSTMBlock(tf.keras.Model):
     """LSTM block with residual connection."""
     def __init__(self, hidden_size, dropout_rate):
         """Initialize the block.
@@ -22,10 +22,6 @@ class ResidualLSTMBlock(tf.keras.layers.Layer):
         self.hidden_size = hidden_size
         self.dropout_rate = dropout_rate
 
-        self.lstm = None
-
-    def build(self, input_shape):
-        """Build the block."""
         self.lstm = tf.keras.layers.LSTM(self.hidden_size, return_sequences=True, dropout=self.dropout_rate)
 
     def get_config(self):
@@ -45,7 +41,7 @@ class ResidualLSTMBlock(tf.keras.layers.Layer):
           float32 tensor with shape [batch_size, length, hidden_size]
         """
 
-        x = self.lstm(inputs)
+        x, _ = self.lstm(inputs)
 
         x += inputs
         x = tf.math.tanh(x)

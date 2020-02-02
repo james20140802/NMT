@@ -26,7 +26,7 @@ def create_masks(inp, tar):
 
     # Used in the 2nd attention block in the decoder.
     # This padding mask is used to mask the encoder outputs.
-    dec_padding_mask = create_padding_mask(inp)
+    dec_padding_mask = create_padding_mask(tar)
 
     # Used in the 1st attention block in the decoder.
     # It is used to pad and mask future tokens in the input received by

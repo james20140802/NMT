@@ -7,7 +7,7 @@ from __future__ import print_function
 import tensorflow as tf
 
 
-class ResidualConvolutionBlock(tf.keras.layers.Layer):
+class ResidualConvolutionBlock(tf.keras.Model):
     """Residual connected convolution block."""
     def __init__(self, n_filters, kernel_size):
         """Initialize the block.
@@ -28,16 +28,8 @@ class ResidualConvolutionBlock(tf.keras.layers.Layer):
         self.n_filters = n_filters
         self.kernel_size = kernel_size
 
-        self.conv1 = None
-        self.conv2 = None
-        self.conv3 = None
-
-        self.relu = None
-
-    def build(self, input_shape):
-        """Build the block."""
-        self.conv1 = tf.keras.layers.Conv1D(int(self.n_filters/4), 1, padding="same")
-        self.conv2 = tf.keras.layers.Conv1D(int(self.n_filters/4), self.kernel_size, padding="same")
+        self.conv1 = tf.keras.layers.Conv1D(int(self.n_filters / 4), 1, padding="same")
+        self.conv2 = tf.keras.layers.Conv1D(int(self.n_filters / 4), self.kernel_size, padding="same")
         self.conv3 = tf.keras.layers.Conv1D(self.n_filters, 1, padding="same")
 
         self.relu = tf.keras.layers.ReLU()
@@ -58,6 +50,7 @@ class ResidualConvolutionBlock(tf.keras.layers.Layer):
           Output of the block.
           float32 tensor with shape [batch_size, length, hidden_size]
         """
+
         x = self.relu(self.conv1(inputs))
         x = self.relu(self.conv2(x))
         x = self.conv3(x)
