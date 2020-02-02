@@ -229,7 +229,7 @@ def encode_and_save_files(subtokenizer, data_dir, raw_files, tag):
     """Save data from files as encoded Examples in TFRecord format.
 
     Args:
-      subtokenizer: SubTokenizer object that will be used to encode the strings.
+      subtokenizer: Subtokenizer object that will be used to encode the strings.
       data_dir: The directory in which to write the examples.
       raw_files: A tuple of (input, target) data files. Each line in the input and the corresponding line in
                  target file will be saved in a tf.Example.
@@ -240,7 +240,7 @@ def encode_and_save_files(subtokenizer, data_dir, raw_files, tag):
     """
 
     file_path = _filename(data_dir, tag)
-    if tf.io.gfile.exists(file_path):
+    if tf.io.gfile.exists(file_path + '.tfrecord'):
         logging.info("Files with tag %s already exist." % tag)
         return file_path
 
@@ -257,15 +257,12 @@ def encode_and_save_files(subtokenizer, data_dir, raw_files, tag):
             logging.info("\tSaving case %d." % counter)
 
         example = dict_to_example(
-            {
-                "inputs": subtokenizer.encode(input_line, add_eos=True),
-                "targets": subtokenizer.encode(target_line, add_eos=True)
-            }
-        )
+            {"inputs": subtokenizer.encode(input_line, add_eos=True),
+             "targets": subtokenizer.encode(target_line, add_eos=True)})
         writer.write(example.SerializeToString())
     writer.close()
 
-    tf.io.gfile.rename(tmp_file_path, file_path)
+    tf.io.gfile.rename(tmp_file_path, file_path + '.tfrecord')
     logging.info("Saved %d Examples", counter + 1)
     return file_path
 
@@ -275,19 +272,19 @@ def _filename(path, tag):
     return os.path.join(path, "%s-%s" % (_PREFIX, tag))
 
 
-def txt_line_iterator(path):
-    """Iterate through lines of file."""
-    with tf.io.gfile.GFile(path) as f:
-        for line in f:
-            yield line.strip()
-
-
 def dict_to_example(dictionary):
     """Converts a dictionary of string->int to a tf.Example."""
     features = {}
     for k, v in six.iteritems(dictionary):
         features[k] = tf.train.Feature(int64_list=tf.train.Int64List(value=v))
     return tf.train.Example(features=tf.train.Features(feature=features))
+
+
+def txt_line_iterator(path):
+    """Iterate through lines of file."""
+    with tf.io.gfile.GFile(path) as f:
+        for line in f:
+            yield line.strip().encode('utf-8')
 
 
 def make_dir(path):
@@ -322,10 +319,8 @@ def main(argv):
 
     # Tokenize and save data as Examples in the TFRecord format.
     logging.info("Step 5/5: Preprocessing and saving data")
-    train_tfrecord_files = encode_and_save_files(
-        subtokenizer, FLAGS.data_dir, compiled_train_files, _TRAIN_TAG)
-    encode_and_save_files(
-        subtokenizer, FLAGS.data_dir, compiled_eval_files, _EVAL_TAG)
+    train_tfrecord_files = encode_and_save_files(subtokenizer, FLAGS.data_dir, compiled_train_files, _TRAIN_TAG)
+    encode_and_save_files(subtokenizer, FLAGS.data_dir, compiled_eval_files, _EVAL_TAG)
 
 
 def define_data_download_flags():
